@@ -1,0 +1,33 @@
+import xml.etree.ElementTree as ET 
+tree = ET.parse('19001-data.xml')
+#tree = ET.parse('19228-data.xml')
+
+root = tree.getroot()
+speaker_list = root.find('rednerliste')
+speakers = {}
+for s in speaker_list.findall('redner'):
+    id = s.get('id')
+    name = getattr(s.find('.//vorname'),'text','')
+    lastName = getattr(s.find('.//nachname'),'text','')
+    fraktion = getattr(s.find('.//fraktion'),'text','')
+    role = getattr(s.find('.//rolle_lang'),'text','')
+    location = getattr(s.find('.//ortszusatz'),'text','')
+    speakers[id] = [name,lastName,fraktion,role,location]
+    
+    
+   
+session_hystory = root.find('sitzungsverlauf')
+speeches = {}
+comments = {}
+for agenda_item in session_hystory.findall('tagesordnungspunkt'):
+    for speech in agenda_item.findall('rede'):
+        id_speech = speech.get('id')
+        name = getattr(speech.find('.//vorname'),'text','')        
+        allSpeeach = []
+        for i in range(1,len(speech)):
+            allSpeeach.append(speech[i].text)
+            ## creando diccionario de comentarios
+            if speech[i].tag == "kommentar":
+                id_kommentar = id_speech +"["+str(i)+"]"
+                comments[id_kommentar] = speech[i].text
+        speeches[id_speech] = [name,allSpeeach] 
